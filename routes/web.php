@@ -67,9 +67,8 @@ Route::middleware(['auth', 'role:doctor'])->group(function () {
 Route::middleware(['auth', 'role:patient'])->group(function () {
     Route::get('/patient/dashboard', [PatientController::class, 'index'])->name('patient.dashboard');
     Route::post('/patient/update', [PatientController::class, 'patientUpdate'])->name('patient.update');
-    Route::get('/patient/history', [PatientController::class, 'history'])->name('patient.history');
-    Route::get('/patient/doctors', [PatientController::class, 'doctorList'])->name('patient.doctors');
-    Route::get('/patient/booking', [PatientController::class, 'bookingDoc'])->name('patient.bookings');
+    Route::get('/patient/medical_history', [PatientController::class, 'medicalHistoryView'])->name('patient.history');
+    Route::get('/patient/doctor_list', [PatientController::class, 'doctorList'])->name('patient.doctor_list');    Route::get('/patient/booking', [PatientController::class, 'bookingDoc'])->name('patient.bookings');
     Route::get('/patient/payment', [PatientController::class, 'payment'])->name('patient.payments');
 
 });

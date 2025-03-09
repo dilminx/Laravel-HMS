@@ -18,5 +18,6 @@ class Doctor extends Model
     public function category() { // ✅ Fix foreign key reference
         return $this->belongsTo(DoctorCategory::class, 'doctor_category_id');
     }
+    
 }
 

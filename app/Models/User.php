@@ -25,7 +25,12 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
+        'profile_photo'
     ];
+    public function doctor() {
+        return $this->hasOne(Doctor::class, 'users_id'); // Ensure foreign key is correct
+    }
+    
 
     /**
      * The attributes that should be hidden for serialization.
