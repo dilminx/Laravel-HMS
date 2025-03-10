@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MedicalHistory;
+use App\Models\Feedback;
 use App\Models\User;
+use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
+use App\Models\DoctorCategory;
+use App\Models\MedicalHistory;
+use App\Models\DoctorAvailability;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use function PHPUnit\Framework\returnValueMap;
@@ -71,9 +76,65 @@ class PatientController extends Controller
         $medicals = MedicalHistory::where('patient_id', Auth::id())->get();
         return view('patient.medical_history',compact('medicals'));
        }
-       public function doctorList(){
-        $doctors = User::where('role','doctor')->with('doctor','doctor_category')->get();
-        return view('patient.doctor_list',compact('doctors'));
-       }
+      
+       public function doctorList()
+    {
+        $categories = DoctorCategory::with('doctors.user')->get(); 
+        return view('patient.doctor_list', compact('categories'));
+    }
+    public function showDoctor($id) {
+        $doctor = Doctor::with(['user', 'category', 'availability'])->findOrFail($id);
+        $doc_id = Doctor::find($id);
+        $users_id = $doc_id->users_id;
+        // dd($users_id);
+
+        $feedbacks = Feedback::where('doctor_id',$users_id)->get();
+    
+        return view('patient.doctor_view', compact('doctor','feedbacks'));
+    }
+    public function bookAppointment(Request $request) {
+        $request->validate([
+            'doctor_id' => 'required|exists:doctor,id',
+            'appointment_date' => 'required|date'
+        ]);
+    
+        $doctorAvailability = DoctorAvailability::where('doctor_id', $request->doctor_id)
+            ->where('available_date', $request->appointment_date)
+            ->first();
+    
+        if (!$doctorAvailability || !$doctorAvailability->hasAvailableSlots()) {
+            return back()->with('error', 'No available slots on this date.');
+        }
+    
+        // Create the appointment
+        Appointment::create([
+            'patient_id' => auth()->id(),
+            'doctor_id' => $request->doctor_id,
+            'appointment_date' => $request->appointment_date,
+            'status' => 'pending'
+        ]);
+    
+        // Update available slots count
+        $doctorAvailability->increment('current_appointments');
+    
+        return back()->with('success', 'Appointment booked successfully!');
+    }
+    public function feedbackSubmit(Request $request){
+        $request->validate([
+            'doctor_id'=>'required',
+            'message'=>'required'
+        ]);
+        $doctor = Doctor::find($request->doctor_id);  
+            //   dd($doctor);
+        Feedback::create([
+            'patient_id'=>Auth::id(),
+            'doctor_id'=>$doctor->users_id,
+            'message'=>$request->message
+        ]);
+        return back()->with('success', 'Feedback add successfully!');
+    }
+    
+    
+
 }
 

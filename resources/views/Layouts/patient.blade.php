@@ -41,8 +41,8 @@
         <a href="{{ route('patient.dashboard') }}">Dashboard</a>
         <a href="{{ route('patient.history') }}">Medical History</a>
         <a href="{{ route('patient.doctor_list') }}">Doctors List</a>
-        <a href="{{ route('patient.bookings') }}">Booking History</a>
-        <a href="{{ route('patient.payments') }}">Payment Details</a>
+        {{-- <a href="{{ route('patient.bookings') }}">Booking History</a>
+        <a href="{{ route('patient.payments') }}">Payment Details</a> --}}
         <a href="{{ route('logout') }}">Logout</a>
     </div>
     <div class="content">

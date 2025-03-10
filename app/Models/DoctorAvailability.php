@@ -15,10 +15,9 @@ class DoctorAvailability extends Model
 
     public function doctor()
     {
-        return $this->belongsTo(User::class, 'doctor_id');
+        return $this->belongsTo(User::class, 'users_id');
     }
 
-    // Check if there are available slots
     public function hasAvailableSlots()
     {
         return $this->current_appointments < $this->max_appointments;

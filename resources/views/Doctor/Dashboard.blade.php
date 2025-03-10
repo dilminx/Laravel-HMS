@@ -55,6 +55,7 @@
                                 <h5 class="card-title">{{ $feedback->patient->first_name ?? 'Unknown' }} {{ $feedback->patient->last_name ?? '' }}</h5>
                                 <h6 class="card-subtitle mb-2 text-muted">{{ $feedback->patient->email ?? 'Unknown' }}</h6>
                                 <p class="card-text">{{ $feedback->message }}</p>
+                                <i class="card-text">{{ $feedback->created_at->format('Y-m-d') }}</i>
                             </div>
                         </div>
                         @endforeach

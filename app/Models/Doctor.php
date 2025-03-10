@@ -11,12 +11,19 @@ class Doctor extends Model
     public $timestamps = false;
     protected $fillable = ['specialization', 'phone', 'work_hospital', 'users_id', 'doctor_category_id'];
 
-    public function user() { // ✅ Fix method name (was `doctors()`)
-        return $this->belongsTo(User::class, 'users_id'); // Ensure correct foreign key
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id');
     }
 
-    public function category() { // ✅ Fix foreign key reference
+    public function category()
+    {
         return $this->belongsTo(DoctorCategory::class, 'doctor_category_id');
+    }
+
+    public function availability()
+    {
+        return $this->hasMany(DoctorAvailability::class, 'doctor_id');
     }
     
 }

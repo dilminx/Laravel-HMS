@@ -28,7 +28,7 @@ class User extends Authenticatable
         'profile_photo'
     ];
     public function doctor() {
-        return $this->hasOne(Doctor::class, 'users_id'); // Ensure foreign key is correct
+        return $this->hasOne(Doctor::class, 'users_id');
     }
     
 

@@ -1,33 +1,31 @@
 @extends('layouts.patient')
 @section('content')
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Doctor Name</th>
-            <th>Specialization</th>
-            <th>Work Hospital</th>
-            <th>Phone</th>
-            <th>Category</th>
-            <th>Chanelling Charge</th>
-            <th>Appointment</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($doctors as $doctor)
-        <tr>
-            <td>{{ $doctor->first_name }} {{ $doctor->last_name }}</td>
-            <td>{{ $doctor->doctor->specialization ?? 'N/A' }}</td> 
-            <td>{{ $doctor->doctor->work_hospital ?? 'N/A' }}</td> 
-            <td>{{ $doctor->doctor->phone ?? 'N/A' }}</td> 
-            <td>{{ $doctor->doctor->category->name ?? 'N/A' }}</td> 
-            <td>{{ $doctor->doctor->category->price ?? 'N/A' }}</td> 
-            <td>
-                <button class="btn btn-primary">Appointment</button>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+<div class="container mt-4">
+    @foreach ($categories as $category)
+@if (empty($category->doctors))
+    <h2>No Doctors</h2>
+@else
+    <h3>{{ $category->name }}</h3>
+    <!-- Doctor Category Name -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Doctor's Name</th>
+                <th scope="col">Profile</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($category->doctors as $doctor)
+                <tr>
+                    <td>{{ $doctor->user->first_name }} {{ $doctor->user->last_name }}</td>
+                    <td><a href="{{ route('patient.doctor.view', $doctor->id) }}" class="btn btn-primary">View Profile</a></td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+@endif
+    @endforeach
+</div>
 
 @endsection
