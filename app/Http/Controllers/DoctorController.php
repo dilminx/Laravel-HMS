@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\Feedback;
@@ -138,6 +139,20 @@ class DoctorController extends Controller
 
         return redirect()->route('doctor.available_dates')->with('error', 'You do not have permission to delete this availability.');
     }
+// ======================================Appointment Doctor==================================
+public function viewAppointments() {
+    // Get the logged-in doctor using users_id
+    $doctor = Doctor::where('users_id', Auth::id())->first();
+
+    if (!$doctor) {
+        return redirect()->route('dashboard')->with('error', 'Doctor profile not found!');
+    }
+
+    // Get appointments where doctor_id matches the logged-in doctor
+    $appointments = Appointment::where('doctor_id', $doctor->id)->get();
+
+    return view('doctor.appointments', compact('appointments'));
+}
 
 
 }

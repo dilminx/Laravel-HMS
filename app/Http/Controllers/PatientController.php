@@ -89,35 +89,51 @@ class PatientController extends Controller
         // dd($users_id);
 
         $feedbacks = Feedback::where('doctor_id',$users_id)->get();
-    
-        return view('patient.doctor_view', compact('doctor','feedbacks'));
+        $myappointments = Appointment::where('patient_id',Auth::id())->get();
+        // dd($myappointments);
+        return view('patient.doctor_view', compact('doctor','feedbacks','myappointments'));
     }
     public function bookAppointment(Request $request) {
-        $request->validate([
-            'doctor_id' => 'required|exists:doctor,id',
-            'appointment_date' => 'required|date'
-        ]);
-    
-        $doctorAvailability = DoctorAvailability::where('doctor_id', $request->doctor_id)
-            ->where('available_date', $request->appointment_date)
-            ->first();
-    
-        if (!$doctorAvailability || !$doctorAvailability->hasAvailableSlots()) {
-            return back()->with('error', 'No available slots on this date.');
+        try {
+            $request->validate([
+                'doctor_id' => 'required|exists:doctor,id',
+                'appointment_date' => 'required|date'
+            ]);
+        
+            $doctorAvailability = DoctorAvailability::where('doctor_id', $request->doctor_id)
+                ->where('available_date', $request->appointment_date)
+                ->first();
+        
+            if (!$doctorAvailability || !$doctorAvailability->hasAvailableSlots()) {
+                return back()->with('error', 'No available slots on this date.');
+            }
+        
+            // Create the appointment
+            Appointment::create([
+                'patient_id' => auth()->id(),
+                'doctor_id' => $request->doctor_id,
+                'appointment_date' => $request->appointment_date,
+                'status' => 'pending'
+            ]);
+        
+            // Update available slots count
+            $doctorAvailability->increment('current_appointments');
+        
+            return back()->with('success', 'Appointment booked successfully!');
+        } catch (\Throwable $th) {
+            return back()->with('error', 'Appointment cannot Booked');
+
         }
-    
-        // Create the appointment
-        Appointment::create([
-            'patient_id' => auth()->id(),
-            'doctor_id' => $request->doctor_id,
-            'appointment_date' => $request->appointment_date,
-            'status' => 'pending'
-        ]);
-    
-        // Update available slots count
-        $doctorAvailability->increment('current_appointments');
-    
-        return back()->with('success', 'Appointment booked successfully!');
+    }
+    public function appointmentCancel($id){
+        $appointment = Appointment::where('id',$id)->where('patient_id',Auth::id())->first();
+        if(!$appointment){
+            return back()->with('error', 'User Not Found At This Movement');
+        }
+        $appointment->delete();
+        return back()->with('success', 'Appointment Remove');
+
+
     }
     public function feedbackSubmit(Request $request){
         $request->validate([

@@ -51,7 +51,7 @@ Route::middleware(['auth', 'role:doctor'])->group(function () {
     Route::post('/doctor/availability', [DoctorController::class, 'addAvailability'])->name('doctor.addAvailability');
     Route::delete('/doctor/availability/{id}', [DoctorController::class, 'deleteAvailability'])->name('doctor.deleteAvailability');
  
-    Route::get('/doctor/appointments', [DoctorController::class, 'appointments'])->name('doctor.appointments');
+    Route::get('/doctor/appointments', [DoctorController::class, 'viewAppointments'])->name('doctor.appointments');
     
     
     Route::get('/doctor/patients_list', [DoctorController::class, 'patientsList'])->name('doctor.patients_list');
@@ -72,6 +72,7 @@ Route::middleware(['auth', 'role:patient'])->group(function () {
     Route::get('/patient/view_doctor/{doctor}', [PatientController::class, 'showDoctor'])->name('patient.doctor.view');
     Route::post('/patient/book-appointment', [PatientController::class, 'bookAppointment'])->name('patient.book.appointment');
     Route::post('/patient/submit-feedback', [PatientController::class, 'feedbackSubmit'])->name('patient.submit.feedback');
+    Route::delete('/patient/appointment-cancel/{id}', [PatientController::class, 'appointmentCancel'])->name('appointment.cancel');
 
     Route::get('/patient/payment', [PatientController::class, 'payment'])->name('patient.payments');
 
