@@ -13,8 +13,9 @@ class DoctorCategory extends Model
 
     
     public function doctors() {
-        return $this->hasMany(Doctor::class, 'doctor_category_id'); // Ensure correct foreign key
+        return $this->hasMany(Doctor::class, 'doctor_category_id');
     }
+    
     
     use HasFactory;
 }

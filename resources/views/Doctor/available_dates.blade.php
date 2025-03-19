@@ -14,7 +14,7 @@
                     @csrf
                     <div class="mb-3">
                         <label for="available_date" class="form-label">Available Date</label>
-                        <input type="date" class="form-control" name="available_date" required>
+                        <input type="date" class="form-control" min="{{ date('Y-m-d') }}" name="available_date" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Add Availability</button>
                 </form>
@@ -26,6 +26,7 @@
             <div class="card shadow-lg p-4">
                 <h4 class="mb-3">Available Dates</h4>
                 <ul class="list-group">
+                    {{-- {{dd($availabilities)}} --}}
                     @foreach($availabilities as $availability)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <strong>{{ $availability->available_date }}</strong>

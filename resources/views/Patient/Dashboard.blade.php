@@ -40,7 +40,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" name="email" class="form-control" value="{{ old('email', Auth::user()->email) }}" required>
+                                    <input type="email" name="email" class="form-control" readonly value="{{ old('email', Auth::user()->email) }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="profile_photo" class="form-label">Profile Photo</label>

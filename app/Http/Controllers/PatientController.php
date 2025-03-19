@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Feedback;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Payment;
+use App\Models\Feedback;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
 use App\Models\DoctorCategory;
@@ -17,11 +18,13 @@ use function PHPUnit\Framework\returnValueMap;
 
 class PatientController extends Controller
 {
-    public function index(){
-        $patient = Patient::where('users_id',Auth::id())->first();
-        return view('patient.dashboard',compact('patient'));
+    public function index()
+    {
+        $patient = Patient::where('users_id', Auth::id())->first();
+        return view('patient.dashboard', compact('patient'));
     }
-    public function patientUpdate(Request $request){
+    public function patientUpdate(Request $request)
+    {
         try {
             $request->validate([
                 'first_name' => 'required|string|max:255',
@@ -41,116 +44,190 @@ class PatientController extends Controller
                 if ($patient->profile_photo) {
                     Storage::delete('public/profile_photos/' . $patient->profile_photo);
                 }
-        
+
                 // Save new image
                 $fileName = time() . '.' . $request->profile_photo->extension();
                 $request->profile_photo->storeAs('public/profile_photos', $fileName);
                 $patient->profile_photo = $fileName;
             }
-            
 
-             $user = Auth::user();
-             $user->update([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-        ]);
-    
-        $patient = Patient::where('users_id', Auth::id())->first();
-        if ($patient) {
-            $patient->update([
-                'DOB' => $request->DOB,
-                'blood_group' => $request->blood_group,
-                'phone' => $request->phone,
+
+            $user = Auth::user();
+            $user->update([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'email' => $request->email,
             ]);
-        }
-    
-        return redirect()->back()->with('success', 'Profile updated successfully!');
-    
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Somthing Went Wrong'.$e->getMessage());
-        }
-       }
 
-       public function medicalHistoryView(){
-        $medicals = MedicalHistory::where('patient_id', Auth::id())->get();
-        return view('patient.medical_history',compact('medicals'));
-       }
-      
-       public function doctorList()
-    {
-        $categories = DoctorCategory::with('doctors.user')->get(); 
-        return view('patient.doctor_list', compact('categories'));
-    }
-    public function showDoctor($id) {
-        $doctor = Doctor::with(['user', 'category', 'availability'])->findOrFail($id);
-        $doc_id = Doctor::find($id);
-        $users_id = $doc_id->users_id;
-        // dd($users_id);
-
-        $feedbacks = Feedback::where('doctor_id',$users_id)->get();
-        $myappointments = Appointment::where('patient_id',Auth::id())->get();
-        // dd($myappointments);
-        return view('patient.doctor_view', compact('doctor','feedbacks','myappointments'));
-    }
-    public function bookAppointment(Request $request) {
-        try {
-            $request->validate([
-                'doctor_id' => 'required|exists:doctor,id',
-                'appointment_date' => 'required|date'
-            ]);
-        
-            $doctorAvailability = DoctorAvailability::where('doctor_id', $request->doctor_id)
-                ->where('available_date', $request->appointment_date)
-                ->first();
-        
-            if (!$doctorAvailability || !$doctorAvailability->hasAvailableSlots()) {
-                return back()->with('error', 'No available slots on this date.');
+            $patient = Patient::where('users_id', Auth::id())->first();
+            if ($patient) {
+                $patient->update([
+                    'DOB' => $request->DOB,
+                    'blood_group' => $request->blood_group,
+                    'phone' => $request->phone,
+                ]);
             }
-        
-            // Create the appointment
-            Appointment::create([
-                'patient_id' => auth()->id(),
-                'doctor_id' => $request->doctor_id,
-                'appointment_date' => $request->appointment_date,
-                'status' => 'pending'
-            ]);
-        
-            // Update available slots count
-            $doctorAvailability->increment('current_appointments');
-        
-            return back()->with('success', 'Appointment booked successfully!');
-        } catch (\Throwable $th) {
-            return back()->with('error', 'Appointment cannot Booked');
 
+            return redirect()->back()->with('success', 'Profile updated successfully!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Somthing Went Wrong' . $e->getMessage());
         }
     }
-    public function appointmentCancel($id){
-        $appointment = Appointment::where('id',$id)->where('patient_id',Auth::id())->first();
-        if(!$appointment){
+
+    public function medicalHistoryView()
+    {
+        $medicals = MedicalHistory::where('patient_id', Auth::id())->get();
+        return view('patient.medical_history', compact('medicals'));
+    }
+
+    public function doctorList()
+    {
+        
+        $myappointments = Appointment::where('patient_id', Auth::id())
+        ->with('doctor')->get();
+
+        $categories = DoctorCategory::with('doctors.user')->get();
+        return view('patient.doctor_list', compact('categories','myappointments'));
+    }
+    public function showDoctor($id)
+{
+    // Fetch doctor availability
+    $availabilities = DoctorAvailability::where('doctor_id', $id)->get();
+    
+    // Fetch feedback related to the doctor
+    $feedbacks = Feedback::where('doctor_id', $id)->get();
+    
+    // Fetch doctor details from `users` table
+    $doctorDetails = User::where('id', $id)->first();
+    
+    // Fetch doctor-specific details from `doctors` table
+    $doctorDetails2 = Doctor::where('users_id', $id)->first(); 
+
+    // Pass data to the view
+    return view('patient.doctor_view', compact('doctorDetails', 'doctorDetails2', 'availabilities', 'feedbacks'));
+}
+
+    
+public function bookAppointment(Request $request)
+{
+    try {
+        // Step 1: Validate input
+        $request->validate([
+            'doctor_id' => 'required',
+            'appointment_date' => 'required|date',
+            'payment_method' => 'required|in:cash,card',
+        ]);
+
+        // Step 2: Check if appointment already exists
+        $existingAppointment = Appointment::where('patient_id', auth()->id())
+            ->where('doctor_id', $request->doctor_id)
+            ->where('appointment_date', $request->appointment_date)
+            ->first();
+
+        if ($existingAppointment) {
+            return back()->with('error', 'You have already booked an appointment with this doctor on this date.');
+        }
+
+        // Step 3: Find doctor availability
+        $doctorAvailability = DoctorAvailability::where('doctor_id', $request->doctor_id)
+            ->where('available_date', $request->appointment_date)
+            ->with('user.doctor.category') 
+            ->first();
+
+        if (!$doctorAvailability) {
+            return back()->with('error', 'Doctor is not available on this date.');
+        }
+
+        if (!$doctorAvailability->user->doctor) {
+            return back()->with('error', 'Doctor details not found.');
+        }
+
+        if (!$doctorAvailability->user->doctor->category) {
+            return back()->with('error', 'Doctor does not have an assigned category.');
+        }
+
+        $price = $doctorAvailability->user->doctor->category->price;  // Corrected price retrieval
+
+        // Step 4: Determine appointment status
+        $appointmentStatus = ($request->payment_method == 'card') ? 'confirmed' : 'pending';
+
+        // Step 5: Create appointment
+        $appointment = Appointment::create([
+            'patient_id' => auth()->id(),
+            'doctor_id' => $request->doctor_id,
+            'appointment_date' => $request->appointment_date,
+            'status' => $appointmentStatus
+        ]);
+
+        // Step 6: Save payment
+        Payment::create([
+            'amount' => $price,
+            'payment_method' => $request->payment_method,
+            'status' => ($request->payment_method == 'cash') ? 'pending' : 'completed',
+            'patient_id' => auth()->id(),
+            'doctor_id' => $request->doctor_id,
+            'appointment_id' => $appointment->id
+        ]);
+
+        return redirect()->route('patient.doctor_list')->with('success', 'Appointment Booked Successfully');
+    } catch (\Throwable $th) {
+        return back()->with('error', 'An unexpected error occurred: ' . $th->getMessage());
+    }
+}
+
+
+    public function appointmentCancel($id)
+    {
+        // dd($id);
+        $appointment = Appointment::where('id', $id)->where('patient_id', Auth::id())->first();
+        if (!$appointment) {
             return back()->with('error', 'User Not Found At This Movement');
         }
+        if($appointment->status==='confirmed'){
+             return back()->with('error','You Allredy payment. cannot cancell at this movement. please contact admin ');
+        } 
+        // $doctorAvailability = DoctorAvailability::where('doctor_id',$id);
+
+        // $doctorAvailability->decrement('current_appointments');
+        Payment::where('appointment_id',$appointment->id)->delete();
         $appointment->delete();
         return back()->with('success', 'Appointment Remove');
 
 
     }
-    public function feedbackSubmit(Request $request){
+    public function feedbackSubmit(Request $request)
+    {
+        // Validate request
         $request->validate([
-            'doctor_id'=>'required',
-            'message'=>'required'
+            'doctor_id' => 'required|exists:doctor,users_id',
+            'message' => 'required|string'
         ]);
-        $doctor = Doctor::find($request->doctor_id);  
-            //   dd($doctor);
+    
+        // Find doctor
+        $doctor = User::find($request->doctor_id);
+        if (!$doctor) {
+            return back()->with('error', 'Doctor not found.');
+        }
+    
+        // Create feedback
         Feedback::create([
-            'patient_id'=>Auth::id(),
-            'doctor_id'=>$doctor->users_id,
-            'message'=>$request->message
+            'patient_id' => Auth::id(),
+            'doctor_id' => $doctor->id,
+            'message' => $request->message
         ]);
-        return back()->with('success', 'Feedback add successfully!');
+    
+        return back()->with('success', 'Feedback added successfully!');
     }
     
-    
+
+    public function paymentHistory()
+    {
+
+        return view('patient.payment_details');
+    }
+
+
 
 }
 

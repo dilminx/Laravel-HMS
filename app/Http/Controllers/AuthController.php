@@ -38,6 +38,8 @@ class AuthController extends Controller
       'email' => 'required|email',
       'password' => 'required',
     ]);
+    
+    // dd($request);
 
     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
       $user = Auth::user();

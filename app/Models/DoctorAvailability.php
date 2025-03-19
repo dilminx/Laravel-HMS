@@ -1,8 +1,10 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
+use App\Models\Doctor;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DoctorAvailability extends Model
 {
@@ -12,11 +14,18 @@ class DoctorAvailability extends Model
 
 
     protected $fillable = ['doctor_id', 'available_date', 'max_appointments', 'current_appointments'];
+    // doctor_id==users table id
 
     public function doctor()
     {
-        return $this->belongsTo(User::class, 'users_id');
+        return $this->belongsTo(User::class, 'doctor_id');  // doctor_id refers to users table id
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'doctor_id');  // doctor_id refers to users table id
+    }
+
+
 
     public function hasAvailableSlots()
     {

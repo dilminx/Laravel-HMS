@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 10, 2025 at 07:35 PM
+-- Generation Time: Mar 19, 2025 at 06:46 AM
 -- Server version: 10.4.13-MariaDB
 -- PHP Version: 7.3.19
 
@@ -32,7 +32,9 @@ CREATE TABLE `appointments` (
   `appointment_date` date DEFAULT NULL,
   `status` enum('pending','confirmed','cancelled') DEFAULT 'pending',
   `patient_id` int(11) NOT NULL,
-  `doctor_id` int(11) NOT NULL
+  `doctor_id` int(11) NOT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -55,7 +57,7 @@ CREATE TABLE `doctor` (
 --
 
 INSERT INTO `doctor` (`id`, `specialization`, `phone`, `work_hospital`, `users_id`, `doctor_category_id`) VALUES
-(3, 'ENT', '0779776800', 'karapitiya base hospital', 14, 1),
+(3, 'ENT', '0779776800', 'karapitiya  hospital', 14, 1),
 (4, 'Neurology', '0779776808', 'karapitiya base hospital', 21, 3),
 (5, 'cardio', '119', 'galle', 3, 2);
 
@@ -70,17 +72,19 @@ CREATE TABLE `doctor_availability` (
   `available_date` date DEFAULT NULL,
   `max_appointments` int(11) DEFAULT 5,
   `current_appointments` int(11) DEFAULT 0,
-  `doctor_id` int(11) NOT NULL
+  `doctor_id` int(11) NOT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `doctor_availability`
 --
 
-INSERT INTO `doctor_availability` (`id`, `available_date`, `max_appointments`, `current_appointments`, `doctor_id`) VALUES
-(10, '2025-03-11', 20, 0, 3),
-(11, '2025-03-14', 20, 0, 3),
-(15, '2025-03-12', 5, 0, 3);
+INSERT INTO `doctor_availability` (`id`, `available_date`, `max_appointments`, `current_appointments`, `doctor_id`, `updated_at`, `created_at`) VALUES
+(48, '2025-03-21', 5, 0, 14, '2025-03-17 12:36:52', '2025-03-17 12:36:52'),
+(50, '2025-03-18', 5, 0, 14, '2025-03-17 12:37:06', '2025-03-17 12:37:06'),
+(51, '2025-03-22', 5, 0, 14, '2025-03-17 12:37:13', '2025-03-17 12:37:13');
 
 -- --------------------------------------------------------
 
@@ -123,9 +127,13 @@ CREATE TABLE `feedback` (
 --
 
 INSERT INTO `feedback` (`id`, `message`, `created_at`, `updated_at`, `patient_id`, `doctor_id`) VALUES
-(10, 'huuuuuu', '2025-03-10 12:21:52', '2025-03-10 12:21:52', 6, 14),
-(11, 'huu huuuuuuuuuuu', '2025-03-10 12:22:10', '2025-03-10 12:22:10', 6, 14),
-(12, 'nice', '2025-03-10 13:03:28', '2025-03-10 13:03:28', 6, 21);
+(10, 'very friendly', '2025-03-10 12:21:52', '2025-03-10 12:21:52', 6, 14),
+(11, 'recommondad', '2025-03-10 12:22:10', '2025-03-10 12:22:10', 6, 14),
+(12, 'nice', '2025-03-10 13:03:28', '2025-03-10 13:03:28', 6, 21),
+(13, 'good', '2025-03-11 00:20:57', '2025-03-11 00:20:57', 6, 14),
+(14, 'hi', '2025-03-14 12:09:53', '2025-03-14 12:09:53', 6, 14),
+(15, 'hi', '2025-03-16 07:32:19', '2025-03-16 07:32:19', 6, 14),
+(16, 'bnbnbn', '2025-03-17 12:23:56', '2025-03-17 12:23:56', 6, 14);
 
 -- --------------------------------------------------------
 
@@ -138,11 +146,40 @@ CREATE TABLE `lab_reports` (
   `test_name` varchar(255) DEFAULT NULL,
   `result` text DEFAULT NULL,
   `report_file` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `patient_id` int(11) NOT NULL,
-  `doctor_id` int(11) NOT NULL
+  `doctor_id` int(11) NOT NULL,
+  `status` enum('pending','completed') DEFAULT NULL,
+  `payment_status` enum('pending','paid') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lab_tests`
+--
+
+CREATE TABLE `lab_tests` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `price` decimal(10,0) DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `lab_tests`
+--
+
+INSERT INTO `lab_tests` (`id`, `name`, `price`, `status`, `created_at`) VALUES
+(1, 'Complete Blood Count (CBC)', '1500', 'active', '2025-03-13 10:21:54'),
+(2, 'Lipid Profile', '2500', 'active', '2025-03-13 10:21:54'),
+(3, 'Liver Function Test', '3200', 'active', '2025-03-13 10:21:54'),
+(4, 'Thyroid Function Test', '2800', 'active', '2025-03-13 10:21:54'),
+(5, 'COVID-19 PCR Test', '5000', 'inactive', '2025-03-13 10:21:54'),
+(6, 'Kidney Function Test', '3000', 'active', '2025-03-13 10:21:54'),
+(7, 'Blood Sugar Test', '1200', 'active', '2025-03-13 10:21:54');
 
 -- --------------------------------------------------------
 
@@ -187,7 +224,25 @@ CREATE TABLE `patient` (
 --
 
 INSERT INTO `patient` (`id`, `DOB`, `blood_group`, `phone`, `users_id`) VALUES
-(1, '1999-07-15', 'O+', '077 9776809', 6);
+(1, '1999-07-15', 'O+', '077 9776899', 6);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payments`
+--
+
+CREATE TABLE `payments` (
+  `id` int(11) NOT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `payment_method` enum('cash','card') DEFAULT NULL,
+  `status` enum('pending','completed','cancelled') DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` varchar(45) DEFAULT 'CURRENT_TIMESTAMP',
+  `patient_id` int(11) NOT NULL,
+  `doctor_id` int(11) NOT NULL,
+  `appointment_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -218,10 +273,9 @@ INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `role
 (4, 'patient', 'user', 'patient@gmail.com', '$2y$10$ojfQSAH2HKm5ngzgQYJbB.U/jk5RGKJd8ghUsRQ/o1ZnELKf8YzJi', 'patient', 'active', '2025-03-03 05:41:59', '2025-03-03 05:41:59', NULL),
 (6, 'pasindu', 'Dilmin', 'pdminipura@gmail.com', '$2y$10$9SnD3pZNiyQlgTVAkLhSx.17R2p5IAvhvX9VVdV4uqTkothHyvBBi', 'patient', 'active', '2025-03-03 11:01:09', '2025-03-08 12:51:53', '1741458113.jpg'),
 (7, 'pasindu', 'Dilmin', 'pdminipura2@gmail.com', '$2y$10$icb/aRu9HeXydi4WBmdt3uvOgcPn2bfoIjouPe0rARjgzU01kbAzG', 'patient', 'active', '2025-03-03 11:26:10', '2025-03-03 11:26:10', NULL),
-(14, 'Upul', 'Perera', 'ENT@gmail.com', '$2y$10$8iNsg1rXYVeTY17G3G0iJ.ZSREqQvSXewSbXrYaL7YjAqrNWSKOmO', 'doctor', 'active', '2025-03-05 12:27:45', '2025-03-07 08:24:46', NULL),
+(14, 'Upul', 'Perera', 'ENT@gmail.com', '$2y$10$8iNsg1rXYVeTY17G3G0iJ.ZSREqQvSXewSbXrYaL7YjAqrNWSKOmO', 'doctor', 'active', '2025-03-05 12:27:45', '2025-03-16 04:10:20', NULL),
 (20, 'pasindu', 'Dilmin', 'p@gmail.com', '$2y$10$9AGdrDwrtFqmKOl90EovT.ocOIvkuSYGYVQBp2H1.I8o5fpJB3HnO', 'patient', 'active', '2025-03-05 12:33:58', '2025-03-05 12:33:58', NULL),
-(21, 'neurology', 'doctor', 'neurologist@gmail.com', '$2y$10$FuDXUewZokPufAJ2I4vfNeSj1hYi/TL5X.xwKp4WpQNMHnh4rJV56', 'doctor', 'active', '2025-03-05 12:34:48', '2025-03-05 12:34:48', NULL),
-(24, 'ENT', 'Doctor', 'EN@gmail.com', NULL, 'patient', 'active', '2025-03-06 12:47:25', '2025-03-06 12:47:25', NULL);
+(21, 'neurology', 'doctor', 'neurologist@gmail.com', '$2y$10$FuDXUewZokPufAJ2I4vfNeSj1hYi/TL5X.xwKp4WpQNMHnh4rJV56', 'doctor', 'active', '2025-03-05 12:34:48', '2025-03-05 12:34:48', NULL);
 
 --
 -- Indexes for dumped tables
@@ -232,6 +286,7 @@ INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `role
 --
 ALTER TABLE `appointments`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `patient_duplicate_date` (`appointment_date`,`patient_id`,`doctor_id`),
   ADD KEY `fk_appointments_users1_idx` (`patient_id`),
   ADD KEY `fk_appointments_users2_idx` (`doctor_id`);
 
@@ -274,6 +329,12 @@ ALTER TABLE `lab_reports`
   ADD KEY `fk_lab_reports_users2_idx` (`doctor_id`);
 
 --
+-- Indexes for table `lab_tests`
+--
+ALTER TABLE `lab_tests`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `medical_history`
 --
 ALTER TABLE `medical_history`
@@ -287,6 +348,15 @@ ALTER TABLE `medical_history`
 ALTER TABLE `patient`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_patient_users_idx` (`users_id`);
+
+--
+-- Indexes for table `payments`
+--
+ALTER TABLE `payments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_payments_users1_idx` (`patient_id`),
+  ADD KEY `fk_payments_users2_idx` (`doctor_id`),
+  ADD KEY `fk_payments_appointments1_idx` (`appointment_id`);
 
 --
 -- Indexes for table `users`
@@ -303,7 +373,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT for table `doctor`
@@ -315,7 +385,7 @@ ALTER TABLE `doctor`
 -- AUTO_INCREMENT for table `doctor_availability`
 --
 ALTER TABLE `doctor_availability`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `doctor_category`
@@ -327,13 +397,19 @@ ALTER TABLE `doctor_category`
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `lab_reports`
 --
 ALTER TABLE `lab_reports`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `lab_tests`
+--
+ALTER TABLE `lab_tests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `medical_history`
@@ -346,6 +422,12 @@ ALTER TABLE `medical_history`
 --
 ALTER TABLE `patient`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `payments`
+--
+ALTER TABLE `payments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -370,12 +452,6 @@ ALTER TABLE `appointments`
 ALTER TABLE `doctor`
   ADD CONSTRAINT `fk_doctor_doctor_category1` FOREIGN KEY (`doctor_category_id`) REFERENCES `doctor_category` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_doctor_users1` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
---
--- Constraints for table `doctor_availability`
---
-ALTER TABLE `doctor_availability`
-  ADD CONSTRAINT `fk_doctor_availability_users1` FOREIGN KEY (`doctor_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `feedback`
@@ -403,6 +479,14 @@ ALTER TABLE `medical_history`
 --
 ALTER TABLE `patient`
   ADD CONSTRAINT `fk_patient_users` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `payments`
+--
+ALTER TABLE `payments`
+  ADD CONSTRAINT `fk_payments_appointments1` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_payments_users1` FOREIGN KEY (`patient_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_payments_users2` FOREIGN KEY (`doctor_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

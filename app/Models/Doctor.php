@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
+use App\Models\DoctorCategory;
+use App\Models\DoctorAvailability;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Doctor extends Model
 {
@@ -17,9 +20,10 @@ class Doctor extends Model
     }
 
     public function category()
-    {
-        return $this->belongsTo(DoctorCategory::class, 'doctor_category_id');
-    }
+{
+    return $this->belongsTo(DoctorCategory::class, 'doctor_category_id');
+}
+
 
     public function availability()
     {

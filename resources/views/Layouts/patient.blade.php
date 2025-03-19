@@ -6,11 +6,16 @@
     <title>@yield('title') - Patient Dashboard</title>
  <!-- Bootstrap CSS -->
  <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-    
+ 
+ <!-- SweetAlert2 -->
+     <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+     
  <!-- Toastr CSS -->
  <link rel="stylesheet" href="{{ asset('css/toastr.min.css') }}">    <style>
-        body {
-            display: flex;
+
+     
+     body {
+         display: flex;
         }
         .sidebar {
             width: 250px;
@@ -40,13 +45,17 @@
         <h3>Patient Panel</h3>
         <a href="{{ route('patient.dashboard') }}">Dashboard</a>
         <a href="{{ route('patient.history') }}">Medical History</a>
-        <a href="{{ route('patient.doctor_list') }}">Appointment</a>
+        <a href="{{ route('patient.doctor_list') }}">Appointments</a>
         {{-- <a href="{{ route('patient.feedback') }}">FeedBack</a> --}}
-        {{-- <a href="{{ route('patient.payments') }}">Payment Details</a> --}}
+        <a href="{{ route('patient.payments') }}">Payment Details</a>
         <a href="{{ route('logout') }}">Logout</a>
     </div>
     <div class="content">
-        @yield('content')
+        <div class="container">
+            <h2>@yield('title')</h2>
+            <hr>
+            @yield('content')
+        </div>
     </div>
     {{-- ====================================js========================== --}}
     <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>

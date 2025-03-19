@@ -60,8 +60,6 @@ Route::middleware(['auth', 'role:doctor'])->group(function () {
     Route::get('/doctor/payments', [DoctorController::class, 'payments'])->name('doctor.payments');
     
     
-  
-    
 }); 
 
 Route::middleware(['auth', 'role:patient'])->group(function () {
@@ -69,14 +67,15 @@ Route::middleware(['auth', 'role:patient'])->group(function () {
     Route::post('/patient/update', [PatientController::class, 'patientUpdate'])->name('patient.update');
     Route::get('/patient/medical_history', [PatientController::class, 'medicalHistoryView'])->name('patient.history');
     Route::get('/patient/doctor_list', [PatientController::class, 'doctorList'])->name('patient.doctor_list');  
-    Route::get('/patient/view_doctor/{doctor}', [PatientController::class, 'showDoctor'])->name('patient.doctor.view');
+    Route::get('/patient/doctor_view/{doctor}', [PatientController::class, 'showDoctor'])->name('patient.doctor.view');
     Route::post('/patient/book-appointment', [PatientController::class, 'bookAppointment'])->name('patient.book.appointment');
     Route::post('/patient/submit-feedback', [PatientController::class, 'feedbackSubmit'])->name('patient.submit.feedback');
     Route::delete('/patient/appointment-cancel/{id}', [PatientController::class, 'appointmentCancel'])->name('appointment.cancel');
 
-    Route::get('/patient/payment', [PatientController::class, 'payment'])->name('patient.payments');
+    Route::get('/patient/payment', [PatientController::class, 'paymentHistory'])->name('patient.payments');
 
 });
+
 
 Route::middleware(['auth', 'role:lab_assistant'])->group(function () {
     Route::get('/lab/dashboard', [LabController::class, 'index'])->name('lab.dashboard');

@@ -5,6 +5,7 @@ use App\Models\Appointment;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\Feedback;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\DoctorAvailability;
 use Illuminate\Support\Facades\DB;
@@ -75,6 +76,8 @@ class DoctorController extends Controller
 
     public function availableDates()
     {
+        //delete available_date table past date. userta parana date pennanne natha
+        DoctorAvailability::where('available_date','<',Carbon::today())->delete();
         $doctor = Doctor::where('users_id', Auth::id())->first();
 
         if (!$doctor) {
@@ -82,7 +85,7 @@ class DoctorController extends Controller
         }
 
         // Use correct doctor_id
-        $availabilities = DoctorAvailability::where('doctor_id', $doctor->id)->get();
+        $availabilities = DoctorAvailability::where('doctor_id', $doctor->users_id)->get();
 
         return view('doctor.available_dates', compact('doctor', 'availabilities'));
     }
@@ -91,6 +94,7 @@ class DoctorController extends Controller
     // Add availability for the doctor
     public function addAvailability(Request $request)
     {
+        // dd( $request->available_date);
         try {
             $request->validate([
                 'available_date' => 'required|date|unique:doctor_availability,available_date,NULL,id,doctor_id,' . Auth::id(),
@@ -106,7 +110,7 @@ class DoctorController extends Controller
     
             // Save correct doctor_id
             DoctorAvailability::create([
-                'doctor_id' => $doctor->id, 
+                'doctor_id' => $doctor->users_id, 
                 'available_date' => $request->available_date,
             ]);
     
@@ -115,7 +119,7 @@ class DoctorController extends Controller
         
         } catch (\Throwable $th) {
 
-            return redirect()->route('doctor.available_dates')->with('error', 'Error added Date!');
+            return redirect()->route('doctor.available_dates')->with('error', 'Error added Date!'.$th->getMessage());
 
         }
         
@@ -132,7 +136,7 @@ class DoctorController extends Controller
             return redirect()->route('doctor.available_dates')->with('error', 'Doctor profile not found!');
         }
 
-        if ($availability->doctor_id == $doctor->id) { 
+        if ($availability->doctor_id == $doctor->users_id) { 
             $availability->delete();
             return redirect()->route('doctor.available_dates')->with('success', 'Availability date deleted successfully!');
         }
