@@ -70,14 +70,14 @@ class DoctorController extends Controller
         }
 
     }
-    
+
 
     // ========================Second Page============================
 
     public function availableDates()
     {
         //delete available_date table past date. userta parana date pennanne natha
-        DoctorAvailability::where('available_date','<',Carbon::today())->delete();
+        DoctorAvailability::where('available_date', '<', Carbon::today())->delete();
         $doctor = Doctor::where('users_id', Auth::id())->first();
 
         if (!$doctor) {
@@ -99,30 +99,30 @@ class DoctorController extends Controller
             $request->validate([
                 'available_date' => 'required|date|unique:doctor_availability,available_date,NULL,id,doctor_id,' . Auth::id(),
             ]);
-    
+
             // Get the correct doctor_id from the 'doctors' table
             $doctor = Doctor::where('users_id', Auth::id())->first();
-    
+
             if (!$doctor) {
                 return redirect()->route('doctor.available_dates')->with('error', 'Doctor profile not found!');
             }
-    
-    
+
+
             // Save correct doctor_id
             DoctorAvailability::create([
-                'doctor_id' => $doctor->users_id, 
+                'doctor_id' => $doctor->users_id,
                 'available_date' => $request->available_date,
             ]);
-    
-    
+
+
             return redirect()->route('doctor.available_dates')->with('success', 'Availability added successfully!');
-        
+
         } catch (\Throwable $th) {
 
-            return redirect()->route('doctor.available_dates')->with('error', 'Error added Date!'.$th->getMessage());
+            return redirect()->route('doctor.available_dates')->with('error', 'Error added Date!' . $th->getMessage());
 
         }
-        
+
     }
 
 
@@ -136,27 +136,38 @@ class DoctorController extends Controller
             return redirect()->route('doctor.available_dates')->with('error', 'Doctor profile not found!');
         }
 
-        if ($availability->doctor_id == $doctor->users_id) { 
+        if ($availability->doctor_id == $doctor->users_id) {
             $availability->delete();
             return redirect()->route('doctor.available_dates')->with('success', 'Availability date deleted successfully!');
         }
 
         return redirect()->route('doctor.available_dates')->with('error', 'You do not have permission to delete this availability.');
     }
-// ======================================Appointment Doctor==================================
-public function viewAppointments() {
-    // Get the logged-in doctor using users_id
-    $doctor = Doctor::where('users_id', Auth::id())->first();
-
-    if (!$doctor) {
-        return redirect()->route('dashboard')->with('error', 'Doctor profile not found!');
+    // ======================================Appointment Doctor==================================
+    public function doctorAppointments()
+    {
+        $doctorId = auth()->id(); // Get the logged-in doctor's ID
+    
+        // Fetch only confirmed appointments for this doctor, ordered by date
+        $appointments = Appointment::where('doctor_id', $doctorId)
+                        ->where('status', 'confirmed')
+                        ->orderBy('appointment_date', 'asc')
+                        ->get();
+    
+        // Group the appointments by appointment date
+        $appointmentsByDate = $appointments->groupBy('appointment_date');
+    
+        return view('doctor.appointments', compact('appointmentsByDate'));
     }
+    public function patientsList()
+    {
+        $patients = User::where('role','patient')->with('patient')->get();
+        return view('doctor.patients_list', compact('patients')); 
 
-    // Get appointments where doctor_id matches the logged-in doctor
-    $appointments = Appointment::where('doctor_id', $doctor->id)->get();
-
-    return view('doctor.appointments', compact('appointments'));
-}
+    }
+    public function patientProfile($id){
+        return view();
+    }
 
 
 }

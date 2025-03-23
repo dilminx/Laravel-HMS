@@ -69,7 +69,7 @@
         <h4 class="text-white text-center">Admin Panel</h4>
         <a href="{{ route('admin.dashboard') }}">🏠 Dashboard</a>
         <a href="{{ route('admin.users') }}">👥 Manage Users</a>
-        <a href="#">📅 Appointments</a>
+        <a href="{{route('admin.appointments')}}">📅 Appointments</a>
         <a href="#">💳 Payments</a>
         <a href="#">📊 Reports</a>
 
@@ -82,9 +82,7 @@
 
     <!-- Main Content -->
     <div class="content">
-        <div class="navbar">
-            <h4>Admin Dashboard</h4>
-        </div>
+        
 
         <div class="container mt-4">
             <h2>@yield('title')</h2>

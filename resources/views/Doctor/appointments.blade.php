@@ -1,39 +1,28 @@
 @extends('layouts.doctor')
+
+@section('title', 'My Confirmed Appointments')
+
 @section('content')
 <div class="container mt-4">
-    <h2 class="bg-primary text-white p-3 text-center">My Appointments</h2>
+    <h3 class="text-center mb-4">Confirmed Appointments</h3>
 
-    <div class="card shadow-lg">
-        <div class="card-body">
-            @if($appointments->isEmpty())
-                <p class="text-muted text-center">No appointments available.</p>
-            @else
-                <table class="table table-bordered">
-                    <thead class="bg-info text-white">
-                        <tr>
-                            <th>#</th>
-                            <th>Patient Name</th>
-                            <th>Appointment Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($appointments as $index => $appointment)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $appointment->patient->first_name }} {{ $appointment->patient->last_name }}</td>
-                                <td>{{ $appointment->appointment_date }}</td>
-                                <td>
-                                    <span class="badge {{ $appointment->status == 'confirmed' ? 'bg-success' : 'bg-warning' }}">
-                                        {{ ucfirst($appointment->status) }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
-    </div>
+    @if ($appointmentsByDate->isEmpty())
+        <p class="text-center text-muted">No confirmed appointments available.</p>
+    @else
+        @foreach ($appointmentsByDate as $date => $appointments)
+            <div class="mb-4 border p-3 rounded shadow-sm">
+                <h5 class="text-primary">{{ \Carbon\Carbon::parse($date)->format('Y/m/d') }}</h5>
+                <ul class="list-group">
+                    @foreach ($appointments as $index => $appointment)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ $index + 1 }} - {{ $appointment->patient->first_name }} {{ $appointment->patient->last_name }}
+                            <span class="badge badge-info">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('H:i') }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endforeach
+    @endif
 </div>
+
 @endsection

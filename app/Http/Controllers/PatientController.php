@@ -81,6 +81,15 @@ class PatientController extends Controller
         return view('patient.medical_history', compact('medicals'));
     }
 
+    public function bookingDoctors(){
+        $categories = DoctorCategory::with('doctors.user')->get();
+       
+
+        return view('patient.booking', compact('categories'));
+  
+        
+    }
+
     public function doctorList()
     {
         
@@ -88,7 +97,7 @@ class PatientController extends Controller
         ->with('doctor')->get();
 
         $categories = DoctorCategory::with('doctors.user')->get();
-        return view('patient.doctor_list', compact('categories','myappointments'));
+        return view('patient.appointments', compact('categories','myappointments'));
     }
     public function showDoctor($id)
 {
@@ -160,6 +169,7 @@ public function bookAppointment(Request $request)
             'status' => $appointmentStatus
         ]);
 
+        
         // Step 6: Save payment
         Payment::create([
             'amount' => $price,
@@ -170,7 +180,7 @@ public function bookAppointment(Request $request)
             'appointment_id' => $appointment->id
         ]);
 
-        return redirect()->route('patient.doctor_list')->with('success', 'Appointment Booked Successfully');
+        return redirect()->route('patient.appointments')->with('success', 'Appointment Booked Successfully');
     } catch (\Throwable $th) {
         return back()->with('error', 'An unexpected error occurred: ' . $th->getMessage());
     }
@@ -223,8 +233,9 @@ public function bookAppointment(Request $request)
 
     public function paymentHistory()
     {
+        $payments = Payment::where('status','completed')->get();
 
-        return view('patient.payment_details');
+        return view('patient.payment_details',compact('payments'));
     }
 
 

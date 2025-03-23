@@ -45,8 +45,8 @@
         <h3>Patient Panel</h3>
         <a href="{{ route('patient.dashboard') }}">Dashboard</a>
         <a href="{{ route('patient.history') }}">Medical History</a>
-        <a href="{{ route('patient.doctor_list') }}">Appointments</a>
-        {{-- <a href="{{ route('patient.feedback') }}">FeedBack</a> --}}
+        <a href="{{ route('patient.booking') }}">Booking Doctors</a>
+        <a href="{{ route('patient.appointments') }}">Appointments</a>
         <a href="{{ route('patient.payments') }}">Payment Details</a>
         <a href="{{ route('logout') }}">Logout</a>
     </div>
