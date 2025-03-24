@@ -4,8 +4,8 @@
     {{-- {{dd($patients)}}     --}}
     <table class="table table-static">
         <thead class="table-secondary">
-            <th>pateant ID</th>
-            <th>pateant Name</th>
+            <th>patiant ID</th>
+            <th>patiant Name</th>
             <th>Email</th>
             <th>Action</th>
         </thead>
@@ -15,7 +15,7 @@
                 <td>{{$patient->id}}</td>
                 <td>{{$patient->first_name}} {{$patient->last_name}}</td>
                 <td>{{$patient->email}}</td>
-                <td ><a href="{{route('doctor.patientProfile')}}" class="btn btn-primary">view Profile</a></td>
+                <td ><a href="{{route('doctor.patientProfile',$patient->id)}}" class="btn btn-primary">view Profile</a></td>
 
             </tbody>
         @endforeach

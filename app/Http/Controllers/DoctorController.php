@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\MedicalHistory;
+use App\Models\Patient;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\Feedback;
@@ -165,9 +167,35 @@ class DoctorController extends Controller
         return view('doctor.patients_list', compact('patients')); 
 
     }
+    // =====================doctor view patient profile ==================
     public function patientProfile($id){
-        return view();
+        $patientDetails = User::where('id', $id)->first();
+        $medicalHistory = MedicalHistory::where('patient_id', $id)->get();
+        return view('doctor.patient_view',compact('patientDetails','medicalHistory'));
     }
+    public function addMedicalNote(Request $request) {
+        // Validate the input
+        $request->validate([
+            'diagnosis' => 'required|string|max:255',
+            'treatment' => 'required|string|max:255',
+            'patient_id' => 'required|exists:users,id', // Ensure patient exists
+            'doctor_id' => 'required|exists:users,id'   // Ensure doctor exists
+        ]);
+    
+        // Store the medical history in the database
+        MedicalHistory::create([
+            'diagnosis' => $request->diagnosis,
+            'treatment' => $request->treatment,
+            'patient_id' => $request->patient_id,
+            'doctor_id' => $request->doctor_id,
+        ]);
+    
+        // Redirect back with success message
+        return back()->with('success', 'Medical note added successfully!');
+    }
+    
+
+
 
 
 }

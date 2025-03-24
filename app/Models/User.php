@@ -32,13 +32,15 @@ class User extends Authenticatable
     //     return $this->hasOne(Doctor::class, 'users_id');
     // }
     public function doctor()
-{
-    return $this->hasOne(Doctor::class, 'users_id', 'id');
-}
+    {
+        return $this->hasOne(Doctor::class, 'users_id', 'id'); 
+    }
+
+    // Relationship with Patient
     public function patient()
-{
-    return $this->belongsTo(Patient::class, 'users_id');
-}
+    {
+        return $this->hasOne(Patient::class, 'users_id', 'id'); 
+    }
 
     
 
