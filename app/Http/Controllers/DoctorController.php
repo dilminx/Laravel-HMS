@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\MedicalHistory;
 use App\Models\Patient;
+use App\Models\Payment;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\Feedback;
@@ -44,6 +45,7 @@ class DoctorController extends Controller
                 'phone' => 'required',
                 'specialization' => 'required',
                 'work_hospital' => 'required',
+                'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
             ]);
 
             // Find and update the current user's details
@@ -55,6 +57,18 @@ class DoctorController extends Controller
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             $user->email = $request->email;
+            if ($request->hasFile('profile_photo')) {
+                // Delete old profile picture if exists
+                if ($user->profile_photo && file_exists(storage_path('app/public/profile_pictures/' . $user->profile_photo))) {
+                    unlink(storage_path('app/public/profile_pictures/' . $user->profile_photo));
+                }
+    
+                // Upload new profile photo
+                $file = $request->file('profile_photo');
+                $filename = time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('public/profile_pictures', $filename);
+                $user->profile_photo = $filename;
+            }
             $user->save();
 
             // Find and update the associated doctor record
@@ -192,6 +206,10 @@ class DoctorController extends Controller
     
         // Redirect back with success message
         return back()->with('success', 'Medical note added successfully!');
+    }
+    public function payments($id){
+        $paymentDetails = Payment::where('doctor_id',$id)->get();
+        return view('doctor.payments',compact('paymentDetails'));
     }
     
 

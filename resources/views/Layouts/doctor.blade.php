@@ -47,8 +47,9 @@
         <a href="{{ route('doctor.available_dates') }}">Available Dates</a>
         <a href="{{ route('doctor.appointments') }}">Appointments</a>
         <a href="{{ route('doctor.patients_list') }}">Patients List</a>
-        <a href="{{ route('doctor.payments') }}">Payments</a>
+        <a href="{{ route('doctor.payments',Auth::id()) }}">Payments</a>
         <a href="{{ route('logout') }}">Logout</a>
+        {{-- <p>{{Auth::id()}}</p> --}}
     </div>
 
     <!-- Main Content -->

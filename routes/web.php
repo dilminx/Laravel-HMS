@@ -62,7 +62,7 @@ Route::middleware(['auth', 'role:doctor'])->group(function () {
     Route::post('/doctor/patient_view/addmedical', [DoctorController::class, 'addMedicalNote'])->name('doctor.addMedical');
 
 
-    Route::get('/doctor/payments', [DoctorController::class, 'payments'])->name('doctor.payments');
+    Route::get('/doctor/payments/{id}', [DoctorController::class, 'payments'])->name('doctor.payments');
 
 
 });

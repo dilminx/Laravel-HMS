@@ -12,12 +12,16 @@
             <!-- Patient Information Card -->
             <div class="card shadow-lg p-4 mb-5 bg-white rounded">
                 <div class="card-body">
-                    <h5 class="card-title text-center">{{ $patientDetails->first_name }} {{ $patientDetails->last_name }}</h5>
+                    <h5 class="card-title text-center">Name: {{ $patientDetails->first_name }} {{ $patientDetails->last_name }}</h5>
                     <hr>
                     <p><strong>Patient ID:</strong> {{ $patientDetails->id }}</p>
+                    @if ($patientDetails->patient)
                     <p><strong>Birthday:</strong> {{ $patientDetails->patient->DOB }}</p>
                     <p><strong>Blood Group:</strong> {{ $patientDetails->patient->blood_group }}</p>
                     <p><strong>Phone:</strong> {{ $patientDetails->patient->phone }}</p>
+                @else
+                    <p class="text-danger"><strong>Profile not updated</strong></p>
+                @endif
                 </div>
             </div>
         </div>
@@ -50,16 +54,21 @@
     <!-- Full-width Medical History Section -->
     <div class="mt-5">
         <h4 class="text-center mb-4">Medical History</h4>
+        @if ($medicalHistory->isEmpty())
+        <p class="text-danger"><strong>No patient history available</strong></p>
+    @else
         @foreach ($medicalHistory as $history)
-        <div class="card shadow-sm mb-3">
-            <div class="card-body">
-                <p><strong>Doctor:</strong> {{$history->doctor->first_name}} {{$history->doctor->last_name}}</p>
-                <p><strong>Diagnosis:</strong> {{$history->diagnosis}}</p>
-                <p><strong>Treatment:</strong> {{$history->treatment}}</p>
-                <p><strong>Date:</strong> {{$history->created_at->format('Y-m-d')}}</p>
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <p><strong>Doctor:</strong> {{$history->doctor->first_name}} {{$history->doctor->last_name}}</p>
+                    <p><strong>Diagnosis:</strong> {{$history->diagnosis}}</p>
+                    <p><strong>Treatment:</strong> {{$history->treatment}}</p>
+                    <p><strong>Date:</strong> {{$history->created_at->format('Y-m-d')}}</p>
+                </div>
             </div>
-        </div>
         @endforeach
+    @endif
+    
     </div>
 </div>
 @endsection

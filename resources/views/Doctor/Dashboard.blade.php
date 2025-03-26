@@ -10,8 +10,20 @@
         <div class="col-md-6">
             <div class="card shadow-lg p-4">
                 <h4 class="mb-3">Update Doctor Info</h4>
-                <form action="{{ route('doctor.update') }}" method="POST">
+                <form action="{{ route('doctor.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    
+                    
+                
+                    <div class="mb-3 text-center">
+                        @if(Auth::user()->profile_photo)
+                            <img src="{{ asset('storage/profile_pictures/' . Auth::user()->profile_photo) }}" alt="Profile Photo" class="img-thumbnail" width="150">
+                        @else
+                            <img src="{{ asset('storage/profile_pictures/default.png') }}" alt="Default Profile" class="img-thumbnail" width="150">
+                        @endif
+                    </div>
+
+                    
                     <div class="mb-3">
                         <label for="first_name" class="form-label">First Name</label>
                         <input type="text" class="form-control" name="first_name" value="{{ Auth::user()->first_name }}">
@@ -31,6 +43,10 @@
                     <div class="mb-3">
                         <label for="specialization" class="form-label">Specialization</label>
                         <input type="text" class="form-control" name="specialization" value="{{ $doctor->specialization ?? '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="profile_photo" class="form-label">Profile Picture</label>
+                        <input type="file" class="form-control" name="profile_photo" accept="image/*">
                     </div>
                     <div class="mb-3">
                         <label for="work_hospital" class="form-label">Work Hospital</label>
